@@ -2,7 +2,8 @@
 
 ## 개요
 서울시 실시간 지하철 도착정보를 제공하는 웹을 구현했습니다.</br>
-서울시 열린데이터 광장의 서울시 지하철 실시간 도착정보(http://data.seoul.go.kr/dataList/OA-12764/F/1/datasetView.do)를 조회합니다.</br>
+서울시 열린데이터 광장의 서울시 지하철 실시간 도착정보를 조회합니다.</br>
+http://data.seoul.go.kr/dataList/OA-12764/F/1/datasetView.do</br>
 
 ## 목적
 - 원하는 지하철역만 추가하여 도착정보를 확인합니다.</br>
