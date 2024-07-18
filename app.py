@@ -5,7 +5,7 @@ import threading
 
 app = Flask(__name__)
 
-# 서울시 지하철 실시간 도착정보 API Endpoint
+# API 엔드포인트
 API_ENDPOINT = "http://swopenapi.seoul.go.kr/api/subway/{api_key}/json/realtimeStationArrival/0/20/{station_name}"
 API_KEY = "API 키를 입력"
 INFO_FILE = 'info.xlsx' # 엑셀 파일 경로
