@@ -17,3 +17,10 @@ http://data.seoul.go.kr/dataList/OA-12764/F/1/datasetView.do</br>
 - 언어: Python, HTML
 - 프레임워크: Flask
 
+## 기능
+### 파일
+- app.py: 메인 파일
+- index.html: UI를 정의한 HTML 파일
+- info.xlsx: 지하철역의 호선 ID, 역 ID, 역 이름, 호선 정보를 포함한 Excel 파일
+
+# 추후 업데이트 예정
