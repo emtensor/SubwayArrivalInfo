@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서울시 지하철 실시간 도착정보</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .station-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .station-item {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px solid #ccc;
+        }
+        .station-item span {
+            width: 200px;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .station-item .station-name {
+            display: inline-block;
+            width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .station-item .station-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            overflow: hidden;
+        }
+
+        .arrival-info .fixed-size {
+            width: 100%;
+            overflow: hidden;
+        }
+        .arrival-info {
+            width: 100%;
+        }
+        .fixed-size {
+            width: 100%;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        .autocomplete-suggestions {
+            border: 1px solid #ccc;
+            background: #fff;
+            position: absolute;
+            max-height: 150px;
+            overflow-y: auto;
+            width: 200px;
+            display: none;
+        }
+        .autocomplete-suggestion {
+            padding: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>서울시 지하철 실시간 도착정보</h1>
+    <form id="add-station-form">
+        <input type="text" id="station-input" placeholder="지하철역 이름" autocomplete="off" required>
+        <button type="submit">+</button>
+        <div id="autocomplete-list" class="autocomplete-suggestions"></div>
+    </form>
+    <ul id="station-list" class="station-list">
+    </ul>
+
+    <script>
+        $(document).ready(function() {
+            $('#station-input').autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: '/search_stations',
+                        method: 'GET',
+                        dataType: 'json',
+                        data: {
+                            query: request.term
+                        },
+                        success: function(data) {
+                            response(data.stations);
+                        },
+                        error: function(error) {
+                            console.log('Error:', error);
+                        }
+                    });
+                },
+                minLength: 1,
+                select: function(event, ui) {
+                    addStation(ui.item.value);
+                    $(this).val('');
+                    return false;
+                }
+            });
+
+            // 초기 도착정보를 불러오는 함수
+            function loadInitialData() {
+                $.ajax({
+                    type: 'GET',
+                    url: '/',
+                    success: function(response) {
+                        updateStationList(response.stations, response.arrival_info);
+                    },
+                    error: function(error) {
+                        console.log('Error:', error);
+                    }
+                });
+            }
+
+            // 역을 추가하는 함수
+            function addStation(station) {
+                var stationParts = station.split('[');
+                var stationName = stationParts[0].trim();
+                var subwayLine = stationParts[1].replace(']', '').trim(); 
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/add',
+                    data: { station: stationName, subway_line: subwayLine }, 
+                    success: function(response) {
+                        updateStationList(response.stations, response.arrival_info);
+                    },
+                    error: function(error) {
+                        console.log('Error:', error);
+                    }
+                });
+            }
+
+            // 역을 삭제하는 함수
+            function deleteStation(station, line) {
+                $.ajax({
+                    type: 'DELETE',
+                    url: `/delete/${encodeURIComponent(station)}/${encodeURIComponent(line)}`,
+                    success: function(response) {
+                        updateStationList(response.stations, response.arrival_info);
+                    },
+                    error: function(error) {
+                        console.log('Error:', error);
+                    }
+                });
+            }
+
+            // 도착정보를 업데이트하는 함수
+            function updateStationList(stations, arrival_info=null) {
+                $('#station-list').empty();
+                stations.forEach(function(station) {
+                    var stationName = station[0];
+                    var subwayLine = station[1];
+                    var stationKey = `${stationName}(${subwayLine})`;
+                    $('#station-list').append(`
+                        <li class="station-item">
+                            <button class="delete-btn" data-station=" ${station[0]}" data-line="${station[1]}">-</button>
+                            <span>${station[0]}[${station[1]}]</span>  <!-- 역 이름과 호선 표시 -->
+                            <div class="station-info">
+                                <div class="arrival-info" id="info-${station[0]}">
+                                    <h4>상행/내선</h4>
+                                    <div class="up-direction fixed-size">
+                                        ${arrival_info ? arrival_info[stationKey]['up_direction'].map(arrival =>
+                                            `<p>${arrival['trainLineNm']} - ${arrival['arvlMsg2']}</p>`).join('') : ''}
+                                    </div>
+                                    <h4>하행/외선</h4>
+                                    <div class="down-direction fixed-size">
+                                        ${arrival_info ? arrival_info[stationKey]['down_direction'].map(arrival =>
+                                            `<p>${arrival['trainLineNm']} - ${arrival['arvlMsg2']}</p>`).join('') : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    `);
+                });
+            }
+
+
+            // 역 이름(호선)을 입력
+            $('#add-station-form').on('submit', function(event) {
+                event.preventDefault();
+                var station = $('#station-input').val();
+                addStation(station);
+                $('#station-input').val('');
+            });
+
+            // 역을 제거
+            $(document).on('click', '.delete-btn', function() {
+                var station = $(this).data('station');
+                var line = $(this).data('line');
+                deleteStation(station, line);
+            });
+
+            // 초기 도착정보 불러오기
+            loadInitialData();
+
+            // 1분마다 업데이트
+            setInterval(function() {
+                $('.station-item').each(function() {
+                    var station = $(this).find('span').text().split(' (')[0];
+                    $.get('/get_arrivals/' + station, function(response) {
+                        var arrivalInfo = response;
+                        $(`#info-${station} .up-direction`).empty();
+                        $(`#info-${station} .down-direction`).empty();
+                        arrivalInfo['up_direction'].forEach(function(arrival) {
+                            $(`#info-${station} .up-direction`).append(`<p>${arrival['trainLineNm']} - ${arrival['arvlMsg2']}</p>`);
+                        });
+                        arrivalInfo['down_direction'].forEach(function(arrival) {
+                            $(`#info-${station} .down-direction`).append(`<p>${arrival['trainLineNm']} - ${arrival['arvlMsg2']}</p>`);
+                        });
+                    });
+                });
+            }, 60000);
+        });
+    </script>
+</body>
+</html>
