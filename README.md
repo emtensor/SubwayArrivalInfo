@@ -30,6 +30,18 @@ http://data.seoul.go.kr/dataList/OA-12764/F/1/datasetView.do</br>
 - index.html: UI를 정의한 파일
 - info.xlsx: 지하철역의 호선 ID, 역 ID, 역 이름, 호선 정보를 포함한 파일
 
-### 지하철역 추가
-![image](https://github.com/user-attachments/assets/bd47ec33-259c-4628-bb54-2419e91bc01a)
+### 역 추가
+검색창에 역을 입력할 때 자동완성 기능이 제공됩니다.
+![image](https://github.com/user-attachments/assets/bb282b56-4bb9-4303-a3e8-f3e391f8e7f6)
+역 이름을 입력하고 '+'버튼을 누르면 역이 추가되며, 도착정보를 확인할 수 있습니다.
+![image](https://github.com/user-attachments/assets/cc4c0016-0b80-4c62-a292-6df72fadbd4c)
+같은 역의 다른 호선 도착정보도 확인할 수 있습니다.
+![image](https://github.com/user-attachments/assets/ca79230e-b4cc-42c2-9175-56fd3c012c03)
+
+### 역 제거
+'-'버튼을 눌러 역을 제거할 수 있습니다.
+
+### 도착정보 갱신
+60초 주기로 도착정보가 갱신됩니다.
+
 
