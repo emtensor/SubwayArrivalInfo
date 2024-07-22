@@ -5,7 +5,7 @@
 - [목적](#목적)
 - [진행](#진행)
 - [환경](#환경)
-- [기능](#기능)
+- [설명](#설명)
 
 ## 개요
 서울시 실시간 지하철 도착정보를 제공하는 웹을 구현했습니다.</br>
@@ -24,11 +24,12 @@ http://data.seoul.go.kr/dataList/OA-12764/F/1/datasetView.do</br>
 - 언어: Python, HTML
 - 프레임워크: Flask
 
-## 기능
+## 설명
 ### 파일
 - app.py: 메인 파일
 - index.html: UI를 정의한 파일
 - info.xlsx: 지하철역의 호선 ID, 역 ID, 역 이름, 호선 정보를 포함한 파일
 
 ### 지하철역 추가
+![image](https://github.com/user-attachments/assets/bd47ec33-259c-4628-bb54-2419e91bc01a)
 
